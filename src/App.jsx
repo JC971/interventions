@@ -1,4 +1,14 @@
 import { useState, useEffect, useCallback, useMemo, memo } from "react";
+import { createClient } from "@supabase/supabase-js";
+
+// ============================================
+// SUPABASE
+// ============================================
+
+const supabase = createClient(
+  "https://edukbapofgvrbqwxoetu.supabase.co",
+  "sb_publishable_W59FXMCB2nJy79h7Dn39Ag_aZWF6gXL"
+);
 
 // ============================================
 // CONFIGURATION ET DONNÉES
@@ -654,6 +664,7 @@ const App = () => {
   const [showFilters, setShowFilters] = useState(false);
   const [showInstallBanner, setShowInstallBanner] = useState(false);
   const [isLoading, setIsLoading] = useState(true);
+  const [syncStatus, setSyncStatus] = useState("idle"); // idle | syncing | success | error
 
   // Charger l'utilisateur sauvegardé
   useEffect(() => {
@@ -778,6 +789,44 @@ const App = () => {
     localStorage.setItem("install_banner_dismissed", "true");
   };
 
+  const handleSync = async () => {
+    if (!isOnline) {
+      alert("Vous êtes hors ligne. Connectez-vous à internet pour synchroniser.");
+      return;
+    }
+    if (interventions.length === 0) {
+      alert("Aucune donnée à synchroniser.");
+      return;
+    }
+    setSyncStatus("syncing");
+    try {
+      const rows = interventions.map((i) => ({
+        id: i.id,
+        bien: i.bien,
+        adresse: i.adresse,
+        date: i.date,
+        heure_debut: i.heureDebut,
+        heure_fin: i.heureFin,
+        intervenant: i.intervenant,
+        etat_general: i.etatGeneral,
+        remarques: i.remarques || null,
+        created_by: i.createdBy,
+        created_at: i.createdAt,
+        updated_at: i.updatedAt || null,
+      }));
+      const { error } = await supabase
+        .from("interventions")
+        .upsert(rows, { onConflict: "id" });
+      if (error) throw error;
+      setSyncStatus("success");
+      setTimeout(() => setSyncStatus("idle"), 3000);
+    } catch (err) {
+      console.error("Erreur sync:", err);
+      setSyncStatus("error");
+      setTimeout(() => setSyncStatus("idle"), 4000);
+    }
+  };
+
   const filteredInterventions = useMemo(() => {
     let filtered = currentUser?.role === "admin"
       ? interventions
@@ -870,17 +919,33 @@ const App = () => {
           flexDirection: isMobile ? "column" : "row",
           gap: isMobile ? "0.75rem" : "1rem",
         }}>
-          <button 
-            onClick={() => openModal()} 
-            style={{ 
-              ...styles.btnPrimary, 
+          <button
+            onClick={() => openModal()}
+            style={{
+              ...styles.btnPrimary,
               ...styles.btnMobile,
               width: isMobile ? "100%" : "auto",
             }}
           >
             ➕ Nouvelle Intervention
           </button>
-          
+
+          <button
+            onClick={handleSync}
+            disabled={syncStatus === "syncing" || !isOnline}
+            style={{
+              ...styles.btnSync,
+              width: isMobile ? "100%" : "auto",
+              opacity: syncStatus === "syncing" || !isOnline ? 0.6 : 1,
+              cursor: syncStatus === "syncing" || !isOnline ? "not-allowed" : "pointer",
+            }}
+          >
+            {syncStatus === "syncing" && "⏳ Sync en cours..."}
+            {syncStatus === "success" && "✅ Synchronisé !"}
+            {syncStatus === "error" && "❌ Erreur sync"}
+            {syncStatus === "idle" && "☁️ Synchroniser"}
+          </button>
+
           {isMobile && (
             <button 
               onClick={() => setShowFilters(!showFilters)}
@@ -1641,6 +1706,18 @@ const styles = {
   btnMobile: {
     padding: "0.875rem 1.5rem",
     minHeight: "48px",
+  },
+  btnSync: {
+    background: "linear-gradient(135deg, #0ea5e9 0%, #0284c7 100%)",
+    color: "white",
+    padding: "0.875rem 1.5rem",
+    border: "none",
+    borderRadius: "10px",
+    fontSize: "1rem",
+    fontWeight: 600,
+    minHeight: "48px",
+    cursor: "pointer",
+    transition: "opacity 0.2s",
   },
   btnSecondary: {
     background: "#64748b",
