@@ -7,7 +7,7 @@ import { createClient } from "@supabase/supabase-js";
 
 const supabase = createClient(
   "https://edukbapofgvrbqwxoetu.supabase.co",
-  "sb_publishable_W59FXMCB2nJy79h7Dn39Ag_aZWF6gXL"
+  "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImVkdWtiYXBvZmd2cmJxd3hvZXR1Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3Njk1NTU5ODksImV4cCI6MjA4NTEzMTk4OX0.vufMYf98XRH62YOpLTlU9wL3kFax3sxAYXXe1NKKTC4"
 );
 
 // ============================================
