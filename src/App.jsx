@@ -1010,6 +1010,7 @@ const App = () => {
 				date: i.date,
 				heure_debut: i.heureDebut,
 				heure_fin: i.heureFin,
+				duree_minutes: calculateDuration(i.heureDebut, i.heureFin)?.totalMinutes ?? null,
 				intervenant: i.intervenant,
 				etat_general: i.etatGeneral,
 				remarques: i.remarques || null,
@@ -1017,6 +1018,7 @@ const App = () => {
 				created_at: i.createdAt,
 				updated_at: i.updatedAt || null,
 			}));
+			console.log("rows duree:", rows.map(r => ({id: r.id, debut: r.heure_debut, fin: r.heure_fin, duree: r.duree_minutes})));
 			const { error } = await supabase
 				.from("interventions")
 				.upsert(rows, { onConflict: "id" });
