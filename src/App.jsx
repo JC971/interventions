@@ -36,6 +36,13 @@ const USERS = [
 		role: "intervenant",
 		name: "Jean Claude",
 	},
+	{
+		id: 3,
+		username: "intervenant3",
+		password: "pass123",
+		role: "intervenant",
+		name: "Megane",
+	},
 ];
 
 const ETAT_COLORS = {
