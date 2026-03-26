@@ -27,14 +27,14 @@ const USERS = [
 		username: "intervenant1",
 		password: "pass123",
 		role: "intervenant",
-		name: "Laurence Dupont",
+		name: "Laurence",
 	},
 	{
 		id: 3,
 		username: "intervenant2",
 		password: "pass123",
 		role: "intervenant",
-		name: "Jean Martin",
+		name: "Jean Claude",
 	},
 ];
 
